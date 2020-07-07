@@ -1,8 +1,12 @@
 package NettyStudy;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -29,7 +33,7 @@ public class Client {
 //		}finally{
 //			group.shutdownGracefully();
 //		}
-		//不含sync（）方法的写法
+//		//不含sync（）方法的写法
 		try {
 			//没用sync（）方法的写法，用ChannelFuture类来接受连接结果
 			ChannelFuture future = b.group(group)
@@ -49,10 +53,15 @@ public class Client {
 					}
 				}
 			});
+			future.sync();
+			System.out.println(".......");
+			
 		} catch (Exception e) {
 			// TODO: handle exception
+		}finally {
+			group.shutdownGracefully();
 		}
-		
+	//end	
 	}
 }
 
@@ -60,9 +69,23 @@ class ClientChannelInitislizer extends ChannelInitializer<SocketChannel>{
 
 	@Override
 	protected void initChannel(SocketChannel ch) throws Exception {
-		System.out.println("channel has initislizer!"+ch);
+		//System.out.println("channel has initislizer!"+ch);
 		//ch初始化成功后，调用自定义的handler来处理服务器的事件。
 		//ch.pipeline().addLast(handler);
+		ch.pipeline().addLast(new CilentHandler());
+	}
+}
+class CilentHandler extends ChannelInboundHandlerAdapter{
+
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		
+	}
+
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		ByteBuf buf = Unpooled.copiedBuffer("hello dhl".getBytes());
+		ctx.writeAndFlush(buf);
 	}
 	
 }
