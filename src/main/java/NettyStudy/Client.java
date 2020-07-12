@@ -1,5 +1,8 @@
 package NettyStudy;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -55,7 +58,7 @@ public class Client {
 			});
 			future.sync();
 			System.out.println(".......");
-			
+			future.channel().closeFuture().sync();
 		} catch (Exception e) {
 			// TODO: handle exception
 		}finally {
@@ -76,10 +79,21 @@ class ClientChannelInitislizer extends ChannelInitializer<SocketChannel>{
 	}
 }
 class CilentHandler extends ChannelInboundHandlerAdapter{
-
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		
+		ByteBuf buf = null;
+		try{
+			buf = (ByteBuf)msg;
+				
+			byte[] bytes = new byte[buf.readableBytes()];
+			buf.getBytes(buf.readerIndex(), bytes);
+			System.out.println("·µ»Ø£º"+new String(bytes));
+			//System.out.println(buf);
+			//System.out.println(buf.refCnt());
+		}finally {
+			//if(buf != null) ReferenceCountUtil.release(buf);
+			//System.out.println(buf.refCnt());
+		}
 	}
 
 	@Override

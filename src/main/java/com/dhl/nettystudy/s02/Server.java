@@ -1,11 +1,14 @@
-package NettyStudy;
+package com.dhl.nettystudy.s02;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlElementDecl.GLOBAL;
+import javax.xml.crypto.Data;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -26,7 +29,6 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 public class Server {
 	public static ChannelGroup clients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-	
 	public static void main(String[] args) throws IOException {
 		EventLoopGroup bossgroup = new NioEventLoopGroup(1);
 		EventLoopGroup workgroup = new NioEventLoopGroup(2);
@@ -70,15 +72,13 @@ class ServerChildHandler extends ChannelInboundHandlerAdapter{
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf buf = null;
 		try{
+			Date t = new Date();
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			buf = (ByteBuf)msg;
-				
 			byte[] bytes = new byte[buf.readableBytes()];
 			buf.getBytes(buf.readerIndex(), bytes);
-			System.out.println(new String(bytes));
-			Server.clients.writeAndFlush(msg);
-			//ctx.writeAndFlush(msg);
-			//System.out.println(buf);
-			//System.out.println(buf.refCnt());
+			System.out.println(df.format(t)+":"+ "【收到】"+new String(bytes));
+			Server.clients.writeAndFlush(df.format(t)+":"+ "【收到】"+msg);
 		}finally {
 			//if(buf != null) ReferenceCountUtil.release(buf);
 			//System.out.println(buf.refCnt());
